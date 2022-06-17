@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -24,7 +25,7 @@ type WorkspaceConfig struct {
 func ParseWorkspaceConfig(path string) (*WorkspaceConfig, error) {
 	config := &WorkspaceConfig{}
 
-	configBytes := []byte{}
+	var configBytes []byte
 	var err error
 
 	if strings.Contains(path, "https://") {
@@ -53,8 +54,9 @@ func fetchWorkspaceConfigFromURL(url string) ([]byte, error) {
 		return nil, fmt.Errorf("encountered an error fetching the data: %w", err)
 	}
 
-	bytes := make([]byte, response.ContentLength)
-	_, err = response.Body.Read(bytes)
+	defer response.Body.Close()
+
+	bytes, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return nil, fmt.Errorf("encountered an error reading the data: %w", err)
 	}
