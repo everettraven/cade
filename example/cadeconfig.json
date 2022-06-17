@@ -1,0 +1,5 @@
+{
+    "containerfile": "example/cade.Dockerfile",
+    "workdir": "/home/cadeuser/workdir",
+    "workspace_name": "cade-test"
+}
