@@ -230,6 +230,54 @@ func (d *Docker) RemoveContainer(container Container) ([]byte, error) {
 	return runDockerCmd(args...)
 }
 
+// CreateContainer creates a container but does not run it. Equivalent to `docker create ...`
+func (d *Docker) CreateContainer(container Container) ([]byte, error) {
+	args := []string{
+		"create",
+		"-it",
+		"--name",
+		container.Name,
+		container.Image,
+		"bash",
+	}
+
+	return runDockerCmd(args...)
+}
+
+// CopyToHost copies files from the container to the host using the provided volume.
+// Returns an error if any occur during the process.
+func (d *Docker) CopyToHost(container Container, volume Volume) ([]byte, error) {
+	copyContainer := container
+	copyContainer.Name = container.Name + "-copier"
+	// create a temporary container
+	out, err := d.CreateContainer(copyContainer)
+	if err != nil {
+		return out, fmt.Errorf("encountered an error creating temporary container to copy files: %w", err)
+	}
+
+	// copy the files
+	args := []string{
+		"cp",
+		fmt.Sprintf("%s:%s", copyContainer.Name, volume.MountPath+"/"),
+		volume.HostPath,
+	}
+
+	fmt.Println("DOCKER CP ARGS:", args)
+
+	out, err = runDockerCmd(args...)
+	if err != nil {
+		return out, fmt.Errorf("encountered an error copying files: %w", err)
+	}
+
+	// remove the temporary container
+	out, err = d.RemoveContainer(copyContainer)
+	if err != nil {
+		return out, fmt.Errorf("encountered an error removing the temporary container: %w", err)
+	}
+
+	return nil, nil
+}
+
 // runDockerCmd is a helper function to run the Docker CLI tool with the specified args.
 // Returns output of the command and an error if one occurred. This blocks until command is
 // complete and should not be used if you need realtime output/inputs.

@@ -1,6 +1,6 @@
 ---
-# prebuilt: "prebuilt-cade-image"
+prebuilt: "bpalmer/cade-example"
 containerfile: "example/cade.Dockerfile"
 workdir: "/home/cadeuser/workdir"
-workspace_name: "cade-test"
+workspace_name: "cade-example"
 # context: "https://github.com/everettraven/cade.git"

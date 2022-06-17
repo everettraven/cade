@@ -5,7 +5,19 @@ import "github.com/spf13/cobra"
 var rootCmd = &cobra.Command{
 	Use:   "cade",
 	Short: "cade is a CLI tool for using Containers as Development Environments",
-	Long:  "cade is a CLI tool that easily enables the use of Containers as Development Environments on a local environment.",
+	Example: `
+	## Starting a workspace 
+	cade up https://raw.githubusercontent.com/everettraven/cade/main/example/cadeconfig.yaml
+
+	## Starting a terminal in a workspace
+	cade term cade-test
+
+	## Stopping a workspace
+	cade down cade-test
+
+	## Get the current cade version
+	cade version
+	`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return cmd.Help()
 	},

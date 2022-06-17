@@ -15,3 +15,5 @@ USER cadeuser
 RUN mkdir -p workdir
 
 WORKDIR /home/cadeuser/workdir
+
+RUN echo "hello from a container workspace!" > hello.txt
