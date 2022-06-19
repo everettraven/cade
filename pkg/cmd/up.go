@@ -48,7 +48,7 @@ func up(workspace string) error {
 		if workspaceConfig.Context != "" {
 			context = workspaceConfig.Context
 		}
-		fmt.Println("No prebuilt image found, building the image")
+		fmt.Println("Building the image (this could take some time...)")
 		out, err := docker.Build(workspaceConfig.Containerfile, wkspName, context)
 		if err != nil {
 			return fmt.Errorf("encountered an error building the workspace image: %w | out: %s", err, out)
@@ -67,7 +67,14 @@ func up(workspace string) error {
 		return fmt.Errorf("encountered an error getting the user home directory: %w", err)
 	}
 
-	workspaceDir := filepath.Join(home, ".cade", "tmp", wkspName)
+	baseWorkspaceDir := filepath.Join(home, "cade", "workspaces")
+	fmt.Println("Ensuring the", baseWorkspaceDir, "directory is created")
+	err = os.MkdirAll(baseWorkspaceDir, 0777)
+	if err != nil {
+		return fmt.Errorf("encountered an error ensuring the directory `%s` exists: %w", baseWorkspaceDir, err)
+	}
+
+	workspaceDir := filepath.Join(baseWorkspaceDir, wkspName)
 
 	volumes := []containerutil.Volume{
 		{
@@ -76,14 +83,18 @@ func up(workspace string) error {
 		},
 	}
 
-	fmt.Println("Copying files from container to temporary workdir")
-	out, err := docker.CopyToHost(container, volumes[0])
-	if err != nil {
-		return fmt.Errorf("encountered an error copying files from container to host: %w | out: %s", err, out)
+	if _, err := os.Stat(workspaceDir); os.IsNotExist(err) {
+		fmt.Println("Copying files from container to workspace directory")
+		out, err := docker.CopyToHost(container, volumes[0])
+		if err != nil {
+			return fmt.Errorf("encountered an error copying files from container to host: %w | out: %s", err, out)
+		}
+	} else if err != nil {
+		return fmt.Errorf("encountered an error checking if directory `%s` already exists: %w", workspaceDir, err)
 	}
 
 	fmt.Println("Running the workspace container")
-	out, err = docker.Run(container, volumes)
+	out, err := docker.Run(container, volumes)
 	if err != nil {
 		return fmt.Errorf("encountered an error running the workspace image: %w | out: %s", err, out)
 	}

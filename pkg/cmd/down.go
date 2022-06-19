@@ -9,12 +9,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var persistWorkdir bool
+
 var downCmd = &cobra.Command{
 	Use:   "down [WORKSPACE]",
 	Short: "removes a containerized development workspace",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return down(args[0])
 	},
+}
+
+func init() {
+	downCmd.Flags().BoolVarP(&persistWorkdir, "persist-workdir", "p", false, "Persist the working directory of the workspace")
 }
 
 func down(workspaceName string) error {
@@ -36,16 +42,18 @@ func down(workspaceName string) error {
 		return fmt.Errorf("encountered an error removing the workspace container: %w | out: %s", err, out)
 	}
 
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return fmt.Errorf("encountered an error getting the user home directory: %w", err)
-	}
+	if !persistWorkdir {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return fmt.Errorf("encountered an error getting the user home directory: %w", err)
+		}
 
-	workspaceDir := filepath.Join(home, ".cade", "tmp", workspaceName)
-	fmt.Println("Cleaning up the workspace tmp directory:", workspaceDir)
-	err = os.RemoveAll(workspaceDir)
-	if err != nil {
-		return fmt.Errorf("encountered an error removing the workspace tmp directory: %w", err)
+		workspaceDir := filepath.Join(home, "cade", "workspaces", workspaceName)
+		fmt.Println("Cleaning up the workspace working directory:", workspaceDir)
+		err = os.RemoveAll(workspaceDir)
+		if err != nil {
+			return fmt.Errorf("encountered an error removing the workspace tmp directory: %w", err)
+		}
 	}
 
 	return nil

@@ -1,10 +1,8 @@
-FROM fedora:latest
+FROM alpine:latest
 
-RUN dnf install -y go
+RUN apk add --no-cache bash
 
-RUN dnf module install -y nodejs:18/common
-
-RUN useradd -ms /bin/bash cadeuser
+RUN adduser -Ss /bin/bash cadeuser
 
 RUN chown -hR cadeuser: /home/cadeuser
 
