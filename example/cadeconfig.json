@@ -3,5 +3,5 @@
     "containerfile": "example/cade.Dockerfile",
     "workdir": "/home/cadeuser/workdir",
     "workspace_name": "cade-example",
-    "context": "https://github.com/everettraven/cade.git"
+    "context": "https://github.com/everettraven/cade.git#main"
 }
