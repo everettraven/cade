@@ -14,13 +14,13 @@ type ContainerUtil interface {
 
 	// Build builds an image from the provided containerfile and tags it
 	// with the provided tag. Returns an error if any occur during the process
-	Build(containerfile string, tag string) ([]byte, error)
+	Build(containerfile string, tag string, context string) ([]byte, error)
 
 	// Exec will execute a command in the container with the provided name
 	// using the execOptions and the args provided. For example:
 	// docker exec {execOptions} {name} {args}
 	// Returns an error if any occur during the process
-	Exec(execOptions ExecOptions, name string, args ...string) error
+	Exec(execOptions ExecOptions, name string, execArgs ...string) error
 
 	// ContainerList will return a list of containers
 	// Returns an error if any occur during the process
@@ -37,6 +37,12 @@ type ContainerUtil interface {
 	// RemoveContainer will remove a container
 	// Returns an error if any occur during the process
 	RemoveContainer(container Container) ([]byte, error)
+
+	// CopyToHost will copy files from within a container to
+	// the host directory. It uses a Volume definition to determine
+	// which directories to use for copy operations.
+	// Returns an error if any occur during the process
+	CopyToHost(container Container, volume Volume) ([]byte, error)
 }
 
 // Volume represents a Volume
@@ -89,4 +95,15 @@ type Image struct {
 	Created string
 	// Size of the image
 	Size string
+}
+
+// NewContainerUtil is used to get an implementation of ContainerUtil
+// TODO(everettraven): Add discovery when multiple container runtimes
+// are supported. May be nice to also add a configuration setting where
+// a user can specify which runtime to be used (in the event they have
+// multiple runtimes installed)
+func NewContainerUtil() ContainerUtil {
+	// For now since docker is the only supported runtime
+	// default to returning the docker utility
+	return NewDockerUtil()
 }

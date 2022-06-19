@@ -18,7 +18,7 @@ var upCmd = &cobra.Command{
 	Use:   "up [WORKSPACE]",
 	Short: "creates a containerized development workspace",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return up(args[0])
+		return up(args[0], containerutil.NewContainerUtil())
 	},
 }
 
@@ -28,7 +28,7 @@ func init() {
 	upCmd.Flags().StringVarP(&contextOverride, "context", "c", "", "override the build context")
 }
 
-func up(workspace string) error {
+func up(workspace string, containerUtil containerutil.ContainerUtil) error {
 	fmt.Println("Parsing the workspace configuration file")
 	workspaceConfig, err := config.ParseWorkspaceConfig(workspace)
 	if err != nil {
@@ -43,8 +43,6 @@ func up(workspace string) error {
 
 	fmt.Println("Creating containerized workspace:", wkspName)
 
-	docker := containerutil.NewDockerUtil()
-
 	if workspaceConfig.Prebuilt == "" || build {
 		context := "."
 		if workspaceConfig.Context != "" {
@@ -56,7 +54,7 @@ func up(workspace string) error {
 		}
 
 		fmt.Println("Building the image (this could take some time...). Using context:", context)
-		out, err := docker.Build(workspaceConfig.Containerfile, wkspName, context)
+		out, err := containerUtil.Build(workspaceConfig.Containerfile, wkspName, context)
 		if err != nil {
 			return fmt.Errorf("encountered an error building the workspace image: %w | out: %s", err, out)
 		}
@@ -65,7 +63,7 @@ func up(workspace string) error {
 	}
 
 	container := containerutil.Container{
-		Name:  wkspName,
+		Name:  fmt.Sprintf("cade-workspace-%s", wkspName),
 		Image: workspaceConfig.Prebuilt,
 	}
 
@@ -92,7 +90,7 @@ func up(workspace string) error {
 
 	if _, err := os.Stat(workspaceDir); os.IsNotExist(err) {
 		fmt.Println("Copying files from container to workspace directory")
-		out, err := docker.CopyToHost(container, volumes[0])
+		out, err := containerUtil.CopyToHost(container, volumes[0])
 		if err != nil {
 			return fmt.Errorf("encountered an error copying files from container to host: %w | out: %s", err, out)
 		}
@@ -101,7 +99,7 @@ func up(workspace string) error {
 	}
 
 	fmt.Println("Running the workspace container")
-	out, err := docker.Run(container, volumes)
+	out, err := containerUtil.Run(container, volumes)
 	if err != nil {
 		return fmt.Errorf("encountered an error running the workspace image: %w | out: %s", err, out)
 	}
