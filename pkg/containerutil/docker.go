@@ -260,8 +260,6 @@ func (d *Docker) CopyToHost(container Container, volume Volume) ([]byte, error) 
 		volume.HostPath,
 	}
 
-	fmt.Println("DOCKER CP ARGS:", args)
-
 	out, err = runDockerCmd(args...)
 	if err != nil {
 		return out, fmt.Errorf("encountered an error copying files: %w", err)
