@@ -280,12 +280,5 @@ func (d *Docker) CopyToHost(container Container, volume Volume) ([]byte, error) 
 // Returns output of the command and an error if one occurred. This blocks until command is
 // complete and should not be used if you need realtime output/inputs.
 func runDockerCmd(args ...string) ([]byte, error) {
-	cmd := exec.Command("docker", args...)
-
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return out, err
-	}
-
-	return out, nil
+	return exec.Command("docker", args...).CombinedOutput()
 }
