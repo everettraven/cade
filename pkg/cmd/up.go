@@ -12,6 +12,7 @@ import (
 
 var name string
 var build bool
+var contextOverride string
 
 var upCmd = &cobra.Command{
 	Use:   "up [WORKSPACE]",
@@ -24,6 +25,7 @@ var upCmd = &cobra.Command{
 func init() {
 	upCmd.Flags().StringVarP(&name, "name", "n", "", "sets the workspace name")
 	upCmd.Flags().BoolVarP(&build, "build", "b", false, "force the workspace image to be built")
+	upCmd.Flags().StringVarP(&contextOverride, "context", "c", "", "override the build context")
 }
 
 func up(workspace string) error {
@@ -48,7 +50,12 @@ func up(workspace string) error {
 		if workspaceConfig.Context != "" {
 			context = workspaceConfig.Context
 		}
-		fmt.Println("Building the image (this could take some time...)")
+
+		if contextOverride != "" {
+			context = contextOverride
+		}
+
+		fmt.Println("Building the image (this could take some time...). Using context:", context)
 		out, err := docker.Build(workspaceConfig.Containerfile, wkspName, context)
 		if err != nil {
 			return fmt.Errorf("encountered an error building the workspace image: %w | out: %s", err, out)
