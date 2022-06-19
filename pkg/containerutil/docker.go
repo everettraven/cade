@@ -7,8 +7,6 @@ import (
 	"os/exec"
 )
 
-//TODO(everettraven): When this is no longer PoC try to adapt this to use the Docker Go SDK
-
 type Docker struct{}
 
 type dockerContainer struct {
