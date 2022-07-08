@@ -67,6 +67,10 @@ func up(workspace string, containerUtil containerutil.ContainerUtil) error {
 		Image: workspaceConfig.Prebuilt,
 	}
 
+	if workspaceConfig.Network != "" {
+		container.Network = workspaceConfig.Network
+	}
+
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return fmt.Errorf("encountered an error getting the user home directory: %w", err)
@@ -87,6 +91,8 @@ func up(workspace string, containerUtil containerutil.ContainerUtil) error {
 			MountPath: workspaceConfig.Workdir,
 		},
 	}
+
+	volumes = append(volumes, workspaceConfig.Volumes...)
 
 	if _, err := os.Stat(workspaceDir); os.IsNotExist(err) {
 		fmt.Println("Copying files from container to workspace directory")

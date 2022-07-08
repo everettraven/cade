@@ -9,15 +9,18 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/everettraven/cade/pkg/containerutil"
 	yaml "gopkg.in/yaml.v2"
 )
 
 type WorkspaceConfig struct {
-	Prebuilt      string `json:"prebuilt" yaml:"prebuilt"`
-	Containerfile string `json:"containerfile" yaml:"containerfile"`
-	Workdir       string `json:"workdir" yaml:"workdir"`
-	WorkspaceName string `json:"workspace_name" yaml:"workspace_name"`
-	Context       string `json:"context" yaml:"context"`
+	Prebuilt      string                 `json:"prebuilt" yaml:"prebuilt"`
+	Containerfile string                 `json:"containerfile" yaml:"containerfile"`
+	Workdir       string                 `json:"workdir" yaml:"workdir"`
+	WorkspaceName string                 `json:"workspace_name" yaml:"workspace_name"`
+	Context       string                 `json:"context" yaml:"context"`
+	Volumes       []containerutil.Volume `json: "volumes" yaml:"volumes"`
+	Network       string                 `json:"network" yaml:"network"`
 }
 
 // ParseWorkspaceConfig will parse a WorkspaceConfig from the provided source.

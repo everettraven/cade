@@ -48,9 +48,9 @@ type ContainerUtil interface {
 // Volume represents a Volume
 type Volume struct {
 	// The path on the host
-	HostPath string
+	HostPath string `json:"host_path" yaml:"host_path"`
 	// The path in the container
-	MountPath string
+	MountPath string `json:"mount_path" yaml:"mount_path"`
 }
 
 // ExecOptions represent options that can be
@@ -81,6 +81,8 @@ type Container struct {
 	State string
 	// Ports exposed on the container
 	Ports string
+	// Network the container should use
+	Network string
 }
 
 // Image represents an Image

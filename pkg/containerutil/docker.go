@@ -64,6 +64,10 @@ func (d *Docker) Run(container Container, volumes []Volume, runArgs ...string) (
 		args = append(args, "-v", fmt.Sprintf("%s:%s", volume.HostPath, volume.MountPath))
 	}
 
+	if container.Network != "" {
+		args = append(args, fmt.Sprintf("--network=%s", container.Network))
+	}
+
 	args = append(args, container.Image)
 
 	args = append(args, runArgs...)
