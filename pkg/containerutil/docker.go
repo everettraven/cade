@@ -1,6 +1,7 @@
 package containerutil
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -151,9 +152,17 @@ func (d *Docker) ContainerList() ([]Container, error) {
 
 	parsed := &dockerContainerList{}
 
-	err = json.Unmarshal(out, parsed)
-	if err != nil {
-		return nil, fmt.Errorf("encountered an error parsing JSON from `docker container list` output: %w", err)
+	out = bytes.TrimSpace(bytes.ReplaceAll(out, []byte("'"), []byte("")))
+	outList := bytes.Split(out, []byte("\n"))
+
+	for _, contain := range outList {
+		container := &dockerContainer{}
+		err = json.Unmarshal(contain, container)
+		if err != nil {
+			return nil, fmt.Errorf("encountered an error parsing JSON from `docker container list` output: %w | OUTPUT: %s", err, contain)
+		}
+
+		parsed.Containers = append(parsed.Containers, *container)
 	}
 
 	for _, c := range parsed.Containers {

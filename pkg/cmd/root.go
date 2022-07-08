@@ -28,6 +28,7 @@ func init() {
 	rootCmd.AddCommand(upCmd)
 	rootCmd.AddCommand(downCmd)
 	rootCmd.AddCommand(termCmd)
+	rootCmd.AddCommand(listCmd)
 }
 
 func Execute() error {
