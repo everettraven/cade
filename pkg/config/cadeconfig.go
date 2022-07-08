@@ -19,7 +19,7 @@ type WorkspaceConfig struct {
 	Workdir       string                 `json:"workdir" yaml:"workdir"`
 	WorkspaceName string                 `json:"workspace_name" yaml:"workspace_name"`
 	Context       string                 `json:"context" yaml:"context"`
-	Volumes       []containerutil.Volume `json: "volumes" yaml:"volumes"`
+	Volumes       []containerutil.Volume `json:"volumes" yaml:"volumes"`
 	Network       string                 `json:"network" yaml:"network"`
 }
 
